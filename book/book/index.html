@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="appModule">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <style>
+        .active{
+            background: red;
+            color: #fff
+        }
+    </style>
+</head>
+<body>
+<div class="navbar navbar-default">
+    <div class="container container-fluid">
+        <div class="navbar-header">
+            <a href="" class="navbar-brand">新华书店</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li ng-class="{active:value=='home'}"><a href="#/">首页</a></li>
+                <li ng-class="{active:value=='list'}"><a href="#/bookList">列表页</a></li>
+                <li ng-class="{active:value=='add'}"><a href="#/bookAdd">增加图书</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="container" ng-view></div>
+<script src="node_modules/angular/angular.js"></script>
+<script src="node_modules/angular-resource/angular-resource.js"></script>
+<script src="node_modules/angular-route/angular-route.js"></script>
+<script>
+    var app = angular.module('appModule', ['ngResource', 'ngRoute']);
+    //监听路由变化
+    app.run(function ($rootScope) {
+        $rootScope.$on('$routeChangeStart', function (from,to) {
+            if(to.$$route.originalPath=='/'){
+                $rootScope.value='home'
+            }else if(to.$$route.originalPath=='/bookList'){
+                $rootScope.value='list'
+            }else if(to.$$route.originalPath=='/bookAdd'){
+                $rootScope.value='add'
+            }
+        })
+    })
+    //路由中的服务 配置使用
+    app.factory('$book', function ($resource) {
+        return $resource('/books/:id', null, {
+            update: {
+                method: 'PUT'
+            }
+        })
+    });
+    app.config(function ($routeProvider) {
+        $routeProvider.when('/', {
+            templateUrl: 'tmpl/index.html',
+            controller: 'indexCtrl'
+        }).when('/bookAdd', {
+            templateUrl: 'tmpl/bookAdd.html',
+            controller: 'addCtrl'
+        }).when('/bookList', {
+            templateUrl: 'tmpl/bookList.html',
+            controller: 'listCtrl'
+        }).when('/bookDetail/:id',{
+            templateUrl:'tmpl/bookDetail.html',
+            controller:'detailCtrl'
+        }).otherwise('/')
+    })
+
+    app.controller('indexCtrl', function ($scope) {
+        $scope.name = '新华书店';
+    })
+    //增加
+    app.controller('addCtrl', function ($scope, $book, $location) {
+        $scope.saveBook = function () {
+            $book.save($scope.book).$promise.then(function () {
+                $location.path('/bookList')
+            })
+        }
+    })
+    app.controller('listCtrl', function ($scope, $book) {
+        $book.query().$promise.then(function (data) {
+            console.log(data)
+            $scope.lists = data;
+        })
+    })
+    app.controller('detailCtrl',function($scope,$routeParams,$book,$location){
+        $book.get({id:$routeParams.id}).$promise.then(function(data){
+            //防止上下联动
+            $scope.newBook=JSON.parse(JSON.stringify(data));
+            $scope.book=data;
+        });
+        $scope.remove=function(id){
+            $book.delete({id:id}).$promise.then(function(){
+                $location.path('/bookList')
+            })
+        };
+        $scope.flag=true;
+        $scope.updateBook=function(){
+            $book.update({id:$routeParams.id},$scope.newBook).$promise.then(function(data){
+                $scope.flag=true;
+                $scope.book=data;
+            })
+        }
+
+    })
+</script>
+</body>
+</html>

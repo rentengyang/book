@@ -1,0 +1,52 @@
+<div class="contain">
+    <div class="panel panel-success col-md-4 col-md-offset-4">
+        <div class="panel-heading">{{book.bookName}}</div>
+        <div class="panel-body text-center">
+            <img ng-src="{{book.bookCover}}">
+        </div>
+        <div class="panel-footer clearfix">
+            价格 {{book.bookPrice |currency:'￥'}}
+            <button class="btn btn-danger pull-right" ng-show="flag" ng-click="remove(book.id)" style="margin-left: 10px">删除</button>
+            <button class="btn btn-warning pull-right" ng-show="flag" ng-click="flag=!flag">修改</button>
+        </div>
+    </div>
+    <div style="clear: both"></div>
+    <form class="form-horizontal" ng-hide="flag">
+        <div class="form-group">
+            <label for="bookName" class="control-label col-md-2">书的名称</label>
+            <div class="col-md-10">
+                <input type="text" id="bookName" class="form-control" placeholder="请输入书的名字" ng-model="newBook.bookName">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="bookCover" class="control-label col-md-2">书的封面</label>
+            <div class="col-md-10">
+                <input type="text" id="bookCover" class="form-control" placeholder="请输入书的封面" ng-model="newBook.bookCover">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="bookPrice" class="control-label col-md-2">书的价格</label>
+            <div class="col-md-10">
+                <input type="text" id="bookPrice" class="form-control" placeholder="请输入书的价格" ng-model="newBook.bookPrice">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button class="btn btn-success" ng-click="flag=true">取消</button>
+                <button class="btn btn-success" ng-click="updateBook()" style="margin-left: 10px">保存</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+
+<style>
+    img{
+        width: 220px;
+        height: 220px;
+    }
+    .panel{
+        padding: 0;
+    }
+</style>
